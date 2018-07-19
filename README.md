@@ -1,5 +1,5 @@
 # features-generator
-Library for automatic features generation.
+Library for automatic features generation. The project follows the [Semantic Versioning Convention](http://semver.org/) and uses Apache 2.0 license.
 
 # Roadmap
 We are willing to provide tools for the following use cases:
