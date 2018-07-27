@@ -1,9 +1,31 @@
+from sklearn.base import BaseEstimator, TransformerMixin
 from feature_generation_strategy import MinFeatureGenerationStrategy, MaxFeatureGenerationStrategy, SumFeatureGenerationStrategy, DiffFeatureGenerationStrategy, ProdFeatureGenerationStrategy, DivFeatureGenerationStrategy, AvgFeatureGenerationStrategy, PCAFeatureGenerationStrategy, TSVDFeatureGenerationStrategy, ICAFeatureGenerationStrategy, GRPFeatureGenerationStrategy, SRPFeatureGenerationStrategy
 
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
+
+
+class FeatureGenerator(BaseEstimator, TransformerMixin):
+    """
+    Feature generator: enables to create features using provided strategies.
+    """
+    def __init__(self, key, strategies):
+        self.key = key
+        self.strategies = strategies
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        return X[self.key]
+
+
+
+
+
+
 
 iris = load_iris()
 df = pd.DataFrame(data= np.c_[iris['data'], iris['target']], columns= iris['feature_names'] + ['target'])

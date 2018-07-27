@@ -1,27 +1,18 @@
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.decomposition import PCA, TruncatedSVD, FastICA
 from sklearn.random_projection import GaussianRandomProjection, SparseRandomProjection
 import abc
 
-class FeatureGenerationStrategyFactory(object):
-    def create(strategy_name):
-        if strategy_name == "sum": return SumFeatureGenerationStrategy()
-        if strategy_name == "diff": return DiffFeatureGenerationStrategy()
-        if strategy_name == "prod": return ProdFeatureGenerationStrategy()
-        if strategy_name == "div": return DivFeatureGenerationStrategy()
-        if strategy_name == "avg": return AvgFeatureGenerationStrategy()
-        if strategy_name == "max": return MaxFeatureGenerationStrategy()
-        if strategy_name == "pca": return PCAFeatureGenerationStrategy()
-        if strategy_name == "tsvd": return TSVDFeatureGenerationStrategy()
-        if strategy_name == "ica": return ICAFeatureGenerationStrategy()
-        if strategy_name == "grp": return GRPFeatureGenerationStrategy()
-        if strategy_name == "srp": return SRPFeatureGenerationStrategy()
-
-class ColumnBasedFeatureGenerationStrategyAbstract(object):
+class ColumnBasedFeatureGenerationStrategyAbstract(BaseEstimator, TransformerMixin):
     """Provides abstraction for features generation"""
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def generate(self, train, val, test, colname1, colname2):
+    def fit(self, train):
+        """Required Method"""
+
+    @abc.abstractmethod
+    def transform(self, train):
         """Required Method"""
 
     @abc.abstractmethod
@@ -33,7 +24,7 @@ class ColumnBasedFeatureGenerationStrategyAbstract(object):
         """Required Method. Used to reflect commutativity."""
 
 class SumFeatureGenerationStrategy(ColumnBasedFeatureGenerationStrategyAbstract):
-    def generate(self, train, val, test, colname1, colname2):
+    def fit(self, train, val, test, colname1, colname2):
         train[self.featurename(colname1, colname2)] = train[[colname1, colname2]].sum(axis=1)
         val[self.featurename(colname1, colname2)] = val[[colname1, colname2]].sum(axis=1)
         test[self.featurename(colname1, colname2)] = test[[colname1, colname2]].sum(axis=1)
