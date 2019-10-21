@@ -1,5 +1,7 @@
 import abc
 
+# https://stackoverflow.com/questions/682504/what-is-a-clean-pythonic-way-to-have-multiple-constructors-in-python
+
 # represents the product created by the builder.
 class Car:
     def __init__(self):
@@ -51,19 +53,41 @@ if __name__ == '__main__':
     print(carBuildDirector.construct())
 
 
+class DataframeKeyAction():
+    def __init__(self):
+        self.name = None
+        self.data_path = None
+        self.actions = []
+
+class DataframeSquashNumericAction():
 
 
+
+
+class DataframeBuilder(metaclass=abc.ABCMeta):
+    def __init__(self):
+        self.name = None
+        self.data_path = None
+        self.actions = []
+
+
+    @abc.abstractmethod
+    def with_key(self, dataframe, name):
+        return self    
 
 
 # the builder abstraction
 class ExperimentBuilder(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def load_dataframe_as(self, dataframe, name):
-        pass
+    def load_dataframe_as(self, name, data_path):
+        self.name = name
+        self.data_path = data_path
+        return self
 
     @abc.abstractmethod
     def load_dataframe_as(self, dataframe, name):
+
         pass  
 
     @abc.abstractmethod
