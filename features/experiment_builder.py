@@ -64,10 +64,17 @@ class SquashNumericDataframeAction():
         self.key_name = key_name
         self.squash_strategy = squash_strategy
 
+# TODO!
 class JoinDataframeAction():
     def __init__(self, key_name=None, squash_strategy=None):
         self.key_name = key_name
         self.squash_strategy = squash_strategy
+
+class RemoveDummyColsDataframeAction():
+    def __init__(self, df_name):
+        self.df_name = df_name
+
+
 
 
 
@@ -97,6 +104,12 @@ class DataframeBuilder():
     def remove_dummy_rows():
         pass
 
+    def create_lag_features():
+        pass
+
+    def ratio_for_lagged():
+        pass
+
     def and():
         return self.experiment_builder
 
@@ -113,45 +126,45 @@ class JoinBuilder():
     def and():
         return self.experiment_builder
 
+class DatasetSplitBuilder():
+
+    def 
+
+
 # the builder abstraction
-class ExperimentBuilder(metaclass=abc.ABCMeta):
+class ExperimentBuilder():
     def __init__(self):
         self.steps = []
+        self.steps.append() # TODO: set seed
 
-    @abc.abstractmethod
+    def set_seed(self, seed: 1234):
+
+
+
     def load_dataframe(self, dataset_path):
         step = DataframeBuilder(self, dataset_path)
         self.steps.append(step)
         return step
 
-    @abc.abstractmethod
-    def inner_join(self, left_df_name, right_df_name, columns_left, columns_right):
-        step = JoinBuilder(self, "inner", left_df_name, right_df_name, columns_left, columns_right)
+    def join(self, join_type, left_df_name, right_df_name, columns_left, columns_right):
+        step = JoinBuilder(self, join_type, left_df_name, right_df_name, columns_left, columns_right)
         self.steps.append(step)
         return step
 
-    @abc.abstractmethod
-    def for_dataframe(self, dataframe):
-        pass
+    def split_trainvaltest():
+        step = 
+        return step
+
+    def execute():
+
+    def report():
+
+    def summary():
+        # TODO create a summary report considering ex.: involved datasets and configurations.
 
 
 
 
-
-    @abc.abstractmethod
-    def get_result(self):
-        pass
-
-
- class ExperimentBuilderImpl(ExperimentBuilder):
-    def __init__(self):
-        self.car = Car()
-
-    def set_color(self, color):
-        self.car.set_color(color)
-
-    def get_result(self):
-        return self.car
 
 
 squash_strategy=mean, sum
@@ -174,5 +187,12 @@ ExperimentBuilder()
    .for('df1') -> dataframe builder
    .create_lag_features(column, prefix, lag_range) -> dataframe builder
    .ratio_for_lagged([columns], lagged_column_prefix, source_lag_range, target_offset, target_lag_range_end) -> dataframe builder
-
+   .split_trainvaltest(val=0.1, test=0.2, policy='last')            # TODO: we should randomize the dataset and get the required splits
+   .split_trainvaltest(val=1.month, test=2.months, policy='any')    # TODO: we should take required amount of months (months selected randomly) and then randomize each part
+   .split_trainvaltest(val=1.month, test=2.months, policy='last')   # TODO: we should sort by date if policy is 'last' and after division randomize each part
+   .normalize() # TODO: auto-normalize or set manually?
+   .feature_selection()
+   .train(validation_metrics)
+   .test(test_metrics)
+   .report()
 
