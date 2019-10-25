@@ -3,57 +3,6 @@ import os
 
 # https://stackoverflow.com/questions/682504/what-is-a-clean-pythonic-way-to-have-multiple-constructors-in-python
 
-# represents the product created by the builder.
-class Car:
-    def __init__(self):
-        self.color = None
-
-    def get_color(self):
-        return self.color
-
-    def set_color(self, color):
-        self.color = color
-
-    def __str__(self):
-        return "Car [color={0}]".format(self.color)
-
-
-# the builder abstraction
-class CarBuilder(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
-    def set_color(self, color):
-        pass
-
-    @abc.abstractmethod
-    def get_result(self):
-        pass
-
-
-class CarBuilderImpl(CarBuilder):
-    def __init__(self):
-        self.car = Car()
-
-    def set_color(self, color):
-        self.car.set_color(color)
-
-    def get_result(self):
-        return self.car
-
-
-class CarBuildDirector:
-    def __init__(self, builder):
-        self.builder = builder
-
-    def construct(self):
-        self.builder.set_color("Red");
-        return self.builder.get_result()
-
-if __name__ == '__main__':
-    builder = CarBuilderImpl()
-    carBuildDirector = CarBuildDirector(builder)
-    print(carBuildDirector.construct())
-
-
 class CreateKeyDataframeAction():
     def __init__(self, key_name=None, columns=None):
         self.key_name = None
@@ -73,10 +22,6 @@ class JoinDataframeAction():
 class RemoveDummyColsDataframeAction():
     def __init__(self, df_name):
         self.df_name = df_name
-
-
-
-
 
 class DataframeBuilder():
     def __init__(self, experiment_builder, dataset_path):
@@ -127,8 +72,79 @@ class JoinBuilder():
         return self.experiment_builder
 
 class DatasetSplitBuilder():
+    def __init__(self, experiment_builder, split_type, val, test):
+        self.experiment_builder = experiment_builder
+        self.split_type = split_type
+        self.val = val
+        self.test = test
 
-    def 
+    def build(): #TODO rename to method when applied cross actions
+        if (type(val) != type(test)):
+            print("Types for val and test should be the same") # TODO throw an error
+        else:
+            if (type(val) == "int" || type(val) == "float"):
+                return None # return corresponding action
+            if (type(val) == "datetime.timedelta"):
+                return None # return corresponding action
+
+# TODO put into another package
+class ModelTrainBuilder():
+    def __init__(self, builder, ):
+
+    def with_validation_metrics():
+        print("ModelTrainBuilder::with_validation_metrics()")
+
+    def saving_best():
+        print("ModelTrainBuilder::saving_best()")
+
+class ModelTestBuilder():
+    def __init__(self, builder, ):
+
+    def with_test_metrics():
+        print("ModelTrainBuilder::with_test_metrics()")
+
+class GBRegressorBuilder():
+    def __init__(self):
+        self.params = {}
+
+    def with_colsample_bytree(colsample_bytree):
+        self.params['colsample_bytree']=colsample_bytree
+        return self
+
+    def with_gamma(gamma):
+        self.params['gamma']=gamma
+        return self
+
+    def with_learning_rate(learning_rate):
+        self.params['learning_rate']=learning_rate
+        return self
+
+    def with_max_depth(max_depth):
+        self.params['max_depth']=max_depth
+        return self
+
+    def with_min_child_weight(min_child_weight):
+        self.params['min_child_weight']=min_child_weight
+        return self
+
+    def with_estimators(estimators):
+        self.params['estimators']=estimators
+        return self
+
+    def with_reg_alpha(reg_alpha):
+        self.params['reg_alpha']=reg_alpha
+        return self
+
+    def with_reg_lambda(reg_lambda):
+        self.params['reg_lambda']=reg_lambda
+        return self
+
+    def with_subsample(subsample):
+        self.params['subsample']=subsample
+        return self
+
+    def and():
+
 
 
 # the builder abstraction
@@ -138,7 +154,6 @@ class ExperimentBuilder():
         self.steps.append() # TODO: set seed
 
     def set_seed(self, seed: 1234):
-
 
 
     def load_dataframe(self, dataset_path):
@@ -151,8 +166,20 @@ class ExperimentBuilder():
         self.steps.append(step)
         return step
 
-    def split_trainvaltest():
-        step = 
+    # We shall accept val/test: https://docs.python.org/3/library/datetime.html#datetime.timedelta
+    # 
+    def split_trainvaltest(val=0.1, test=0.2):
+        step = DatasetSplitBuilder(self, val, test)
+        self.steps.append(step)
+        return step
+
+    def create_model(model_type):
+        if(model_type == 'gbr'):
+            return GBRegressorBuilder()
+
+    def train():
+        step = TrainAbstractionBuilder()
+        self.steps.append(step)
         return step
 
     def execute():
@@ -167,7 +194,7 @@ class ExperimentBuilder():
 
 
 
-squash_strategy=mean, sum
+# squash_strategy=mean, sum
 
 
 ExperimentBuilder()
@@ -190,9 +217,11 @@ ExperimentBuilder()
    .split_trainvaltest(val=0.1, test=0.2, policy='last')            # TODO: we should randomize the dataset and get the required splits
    .split_trainvaltest(val=1.month, test=2.months, policy='any')    # TODO: we should take required amount of months (months selected randomly) and then randomize each part
    .split_trainvaltest(val=1.month, test=2.months, policy='last')   # TODO: we should sort by date if policy is 'last' and after division randomize each part
-   .normalize() # TODO: auto-normalize or set manually?
-   .feature_selection()
-   .train(validation_metrics)
-   .test(test_metrics)
+   .normalize().and() # TODO: auto-normalize or set manually?
+   .feature_selection().and()
+   .create_model('gbt').and()
+   .train().with_validation_metrics().saving_best().and()
+   .test().with_test_metrics().and()
    .report()
+   .execute()
 
