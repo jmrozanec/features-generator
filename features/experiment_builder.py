@@ -1,4 +1,3 @@
-import abc
 import os
 
 # https://stackoverflow.com/questions/682504/what-is-a-clean-pythonic-way-to-have-multiple-constructors-in-python
@@ -23,13 +22,40 @@ class RemoveDummyColsDataframeAction():
     def __init__(self, df_name):
         self.df_name = df_name
 
+class DatasetSplitOnDate():
+    def __init__(self, val, test):
+        self.val = val
+        self.test = test
+
+    def execute():
+        print("TODO: dummy split")
+
+
+class DatasetSplitOnPercentage():
+    def __init__(self, val, test):
+        self.val = val
+        self.test = test
+
+    def execute():
+        print("TODO: dummy split")
+
+
 class DataframeBuilder():
-    def __init__(self, experiment_builder, dataset_path):
+    def __init__(self, experiment_builder):
         self.experiment_builder = experiment_builder
         self.dataset_path = dataset_path
+        self.is_path = True
         base=os.path.basename(dataset_path)
         self.df_name = os.path.splitext(base)[0]
         self.actions = []
+
+    def from_repository(dataset_name):
+        self.is_path = False
+        
+        return self
+
+    def from_file(dataset_path):
+        return self
 
     def as(self, df_name):
         self.df_name = df_name
@@ -44,16 +70,20 @@ class DataframeBuilder():
         return self
 
     def remove_dummy_cols():
-        pass
+        print("TODO: dummy remove_dummy_cols")
+        return self
 
     def remove_dummy_rows():
-        pass
+        print("TODO: dummy remove_dummy_rows")
+        return self
 
     def create_lag_features():
-        pass
+        print("TODO: dummy create_lag_features")
+        return self
 
     def ratio_for_lagged():
-        pass
+        print("TODO: dummy ratio_for_lagged")
+        return self
 
     def and():
         return self.experiment_builder
@@ -83,9 +113,9 @@ class DatasetSplitBuilder():
             print("Types for val and test should be the same") # TODO throw an error
         else:
             if (type(val) == "int" || type(val) == "float"):
-                return None # return corresponding action
+                return DatasetSplitOnPercentage(val, test)
             if (type(val) == "datetime.timedelta"):
-                return None # return corresponding action
+                return DatasetSplitOnDate(val, test)
 
 # TODO put into another package
 class ModelTrainBuilder():
@@ -104,8 +134,9 @@ class ModelTestBuilder():
         print("ModelTrainBuilder::with_test_metrics()")
 
 class GBRegressorBuilder():
-    def __init__(self):
+    def __init__(self, experiment_builder):
         self.params = {}
+        self.experiment_builder = experiment_builder
 
     def with_colsample_bytree(colsample_bytree):
         self.params['colsample_bytree']=colsample_bytree
@@ -144,17 +175,19 @@ class GBRegressorBuilder():
         return self
 
     def and():
-
+        return self.experiment_builder
 
 
 # the builder abstraction
 class ExperimentBuilder():
     def __init__(self):
         self.steps = []
+        self.seed = 1234
         self.steps.append() # TODO: set seed
 
     def set_seed(self, seed: 1234):
-
+        self.seed = seed
+        return self
 
     def load_dataframe(self, dataset_path):
         step = DataframeBuilder(self, dataset_path)
@@ -183,45 +216,52 @@ class ExperimentBuilder():
         return step
 
     def execute():
+        print("TODO: dummy execution")
+
+    def describe():
+        print("TODO: dummy experiment_builder describe")
 
     def report():
+        print("TODO: dummy report")
 
     def summary():
+        print("TODO: dummy summary")
         # TODO create a summary report considering ex.: involved datasets and configurations.
 
 
 
 
-
+f = ExperimentBuilder()
+f.set_seed().load_dataframe()
 
 # squash_strategy=mean, sum
 
 
-ExperimentBuilder()
-   .load_dataframe('cars', '/home/datasets/cars.csv').with_key(key_name, [columns]).squash_numeric('dm-key', squash_strategy)
-   .load_dataframe('trains', '/home/datasets/cars.csv').with_key(key_name)
-   .inner_join(left, right, columns_left, columns_right)
-   .create_lag_features(column, prefix, lag_range)
-   .ratio_for_lagged([columns], lagged_column_prefix, source_lag_range, target_offset, target_lag_range_end)
+#ExperimentBuilder()
+#   .load_dataframe('cars', '/home/datasets/cars.csv').with_key(key_name, [columns]).squash_numeric('dm-key', squash_strategy)
+#   .load_dataframe('trains', '/home/datasets/cars.csv').with_key(key_name)
+#   .inner_join(left, right, columns_left, columns_right)
+#   .create_lag_features(column, prefix, lag_range)
+#   .ratio_for_lagged([columns], lagged_column_prefix, source_lag_range, target_offset, target_lag_range_end)
 
 
 
-ExperimentBuilder()
-   .load_dataframe('/home/datasets/cars.csv').with_key(key_name, [columns]).squash_numeric('dm-key', squash_strategy).as('cars') -> dataframe builder
-   .and() -> experiment builder
-   .load_dataframe('trains', '/home/datasets/cars.csv').with_key(key_name).and()
-   .create_dataframe_as_join('df1', [left], [right], columns_left, columns_right) -> experiment builder
-   .for('df1') -> dataframe builder
-   .create_lag_features(column, prefix, lag_range) -> dataframe builder
-   .ratio_for_lagged([columns], lagged_column_prefix, source_lag_range, target_offset, target_lag_range_end) -> dataframe builder
-   .split_trainvaltest(val=0.1, test=0.2, policy='last')            # TODO: we should randomize the dataset and get the required splits
-   .split_trainvaltest(val=1.month, test=2.months, policy='any')    # TODO: we should take required amount of months (months selected randomly) and then randomize each part
-   .split_trainvaltest(val=1.month, test=2.months, policy='last')   # TODO: we should sort by date if policy is 'last' and after division randomize each part
-   .normalize().and() # TODO: auto-normalize or set manually?
-   .feature_selection().and()
-   .create_model('gbt').and()
-   .train().with_validation_metrics().saving_best().and()
-   .test().with_test_metrics().and()
-   .report()
-   .execute()
+#ExperimentBuilder()
+#   .load_dataframe('/home/datasets/cars.csv').with_key(key_name, [columns]).squash_numeric('dm-key', squash_strategy).as('cars') -> dataframe builder
+#   .and() -> experiment builder
+#   .load_dataframe('trains', '/home/datasets/cars.csv').with_key(key_name).and()
+#   .create_dataframe_as_join('df1', [left], [right], columns_left, columns_right) -> experiment builder
+#   .for('df1') -> dataframe builder
+#   .create_lag_features(column, prefix, lag_range) -> dataframe builder
+#   .ratio_for_lagged([columns], lagged_column_prefix, source_lag_range, target_offset, target_lag_range_end) -> dataframe builder
+#   .split_trainvaltest(val=0.1, test=0.2, policy='last')            # TODO: we should randomize the dataset and get the required splits
+#   .split_trainvaltest(val=1.month, test=2.months, policy='any')    # TODO: we should take required amount of months (months selected randomly) and then randomize each part
+#   .split_trainvaltest(val=1.month, test=2.months, policy='last')   # TODO: we should sort by date if policy is 'last' and after division randomize each part
+#   .normalize().and() # TODO: auto-normalize or set manually?
+#   .feature_selection().and()
+#   .create_model('gbt').and()
+#   .train().with_validation_metrics().saving_best().and()
+#   .test().with_test_metrics().and()
+#   .report()
+#   .execute()
 
